@@ -1,6 +1,6 @@
 import os
 import logging
-import google.generativeai as genai
+import google.genai as genai
 from google.api_core import exceptions
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
@@ -13,13 +13,13 @@ class GeminiClient:
     singleton or a shared instance across the application.
     """
 
-    def __init__(self, api_key: str, model_name: str = "gemini-pro"):
+    def __init__(self, api_key: str, model_name: str = "gemini-1.5-pro"):
         """
         Initializes and configures the Gemini client.
 
         Args:
             api_key: The Google AI API key.
-            model_name: The specific Gemini model to use (e.g., "gemini-pro").
+            model_name: The specific Gemini model to use (e.g., "gemini-1.5-pro").
         """
         if not api_key:
             raise ValueError("API key for Gemini client cannot be None or empty.")
@@ -53,11 +53,10 @@ class GeminiClient:
             response = self.model.generate_content(prompt)
             
             # Accessing the text safely, handling cases where the response might be empty or blocked.
-            if response.parts:
+            if response.text:
                 return response.text
             else:
                 logging.warning("Gemini API returned an empty or blocked response.")
-                # You might want to inspect `response.prompt_feedback` for details.
                 return ""
 
         except (exceptions.ResourceExhausted, exceptions.ServiceUnavailable) as e:

@@ -4,7 +4,7 @@
 
 # Google's official Python SDK for the Gemini API.
 # Used by the GeminiClient to communicate with the generative model.
-google-generativeai
+google-genai
 
 # Core library for building applications with Large Language Models.
 # While we use LangGraph for orchestration, LangChain provides foundational components.
