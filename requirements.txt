@@ -1,0 +1,44 @@
+# -----------------------------------------------------------------------------
+# AI & Orchestration Core
+# -----------------------------------------------------------------------------
+
+# Google's official Python SDK for the Gemini API.
+# Used by the GeminiClient to communicate with the generative model.
+google-generativeai
+
+# Core library for building applications with Large Language Models.
+# While we use LangGraph for orchestration, LangChain provides foundational components.
+langchain
+
+# A library for building stateful, multi-agent applications.
+# Used by the LangGraphOrchestrator to define and run the resume generation workflow.
+langgraph
+
+# A general-purpose retrying library.
+# Used in the GeminiClient to handle transient API errors gracefully (e.g., rate limits).
+tenacity
+
+# -----------------------------------------------------------------------------
+# Document Generation & Formatting
+# -----------------------------------------------------------------------------
+
+# A library for creating and updating Microsoft Word (.docx) files.
+# Used by PdfDocxGenerator to build the final DOCX resume.
+python-docx
+
+# A smart CSS and HTML visual rendering engine for Python.
+# Converts the styled HTML into a high-quality PDF, giving us precise control
+# over fonts, spacing, and layout to match the desired visual format.
+WeasyPrint
+
+# A fast and complete implementation of Markdown.
+# Used to convert the final Markdown resume into an HTML string before PDF generation.
+markdown2
+
+# -----------------------------------------------------------------------------
+# Utilities
+# -----------------------------------------------------------------------------
+
+# Reads key-value pairs from a .env file and sets them as environment variables.
+# Used in main.py to securely load the GEMINI_API_KEY without hardcoding it.
+python-dotenv
