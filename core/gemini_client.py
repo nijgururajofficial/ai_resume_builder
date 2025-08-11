@@ -1,7 +1,6 @@
 import os
 import logging
 import google.genai as genai
-from google.api_core import exceptions
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 class GeminiClient:
@@ -31,7 +30,7 @@ class GeminiClient:
     @retry(
         wait=wait_exponential(multiplier=1, min=4, max=10),
         stop=stop_after_attempt(3),
-        retry=(retry_if_exception_type(exceptions.ResourceExhausted) | retry_if_exception_type(exceptions.ServiceUnavailable)),
+        retry=(retry_if_exception_type(Exception)),
         before_sleep=lambda retry_state: logging.warning(f"Retrying Gemini API call... Attempt #{retry_state.attempt_number}")
     )
     def generate_text(self, prompt: str) -> str:
@@ -59,12 +58,6 @@ class GeminiClient:
                 logging.warning("Gemini API returned an empty or blocked response.")
                 return ""
 
-        except (exceptions.ResourceExhausted, exceptions.ServiceUnavailable) as e:
-            logging.error(f"A retriable Gemini API error occurred: {e}")
-            raise  # Re-raise to trigger tenacity's retry mechanism
-        except exceptions.GoogleAPICallError as e:
-            logging.error(f"A non-retriable Gemini API error occurred: {e}")
-            raise
         except Exception as e:
-            logging.error(f"An unexpected error occurred in GeminiClient: {e}")
+            logging.error(f"An error occurred in GeminiClient: {e}")
             raise
