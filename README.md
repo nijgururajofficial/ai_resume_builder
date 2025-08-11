@@ -80,7 +80,7 @@ Follow these steps to set up and run the project locally.
 ### 1. Clone the Repository
 
 ```sh
-git clone [https://github.com/your-username/ai-resume-builder.git](https://github.com/your-username/ai-resume-builder.git)
+git clone [https://github.com/nijgururajofficial/ai_resume_builder.git](https://github.com/nijgururajofficial/ai_resume_builder.git)
 cd ai-resume-builder
 ```
 
