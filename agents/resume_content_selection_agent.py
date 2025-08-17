@@ -36,9 +36,7 @@ class ResumeContentSelectionAgent:
         job_analysis_str = json.dumps(job_analysis, indent=2)
 
         return f"""
-        You are an expert career coach and resume writer crafting a resume for a high-stakes job application.
-        Your goal is to create highly tailored resume content that will score exceptionally well with ATS systems
-        and impress hiring managers by aligning a User Profile with a specific Job Analysis.
+        You are an expert career coach and resume writer. Your task is to generate highly tailored resume content designed to fit on a single, high-impact page. The content must be professional, concise, and action-oriented to impress hiring managers and score exceptionally well with ATS systems.
 
         **Input Data:**
 
@@ -57,33 +55,33 @@ class ResumeContentSelectionAgent:
 
         **Rules:**
 
-        1.  **`headline`**: Create a compelling, professional headline that includes the exact `job_title` from the Job Analysis. Do not add any other text.
+        1.  **`professional_title`**: Craft a professional title, not a conversational headline. It should prominently feature the `job_title` from the Job Analysis and may optionally include a key specialization if highly relevant (e.g., "Senior Software Engineer | Cloud Infrastructure").
 
-        2.  **`tailored_experience`**: 
+        2.  **`tailored_experience`**:
             - Select the most relevant work experiences from the User Profile that align with the Job Analysis.
-            - For each job, rewrite the responsibilities to create a list of high-impact bullet points.
-            - **Constraint**: Each job entry must have a **maximum of 5 bullet points**.
-            - **Quantification**: Rewrite every bullet point to start with a strong action verb and include quantifiable metrics wherever possible to demonstrate impact (e.g., "Optimized database queries, reducing latency by 40%," or "Led a team of 5 engineers to deliver the project 2 weeks ahead of schedule.").
+            - **Framework**: Rewrite each responsibility using the STAR method (Situation, Task, Action, Result), focusing heavily on the **Action** (what you did) and the **Result** (the outcome).
+            - **Constraint**: Each job entry must have a **maximum of 5 bullet points**. Prioritize the most impactful achievements. **must be between 110 and 120 characters strictly**.
+            - **Quantification**: Every bullet point must start with a strong action verb and include a quantifiable metric to demonstrate impact (e.g., "Reduced server costs by 30%," "Increased user engagement by 15%").
+            - **Conciseness**: Each bullet point **must be a single, concise line of text**.
             - **Keyword Integration**: Naturally incorporate keywords from the `required_skills` and `responsibilities` in the Job Analysis.
 
-        3.  **`tailored_projects`**: 
-            - Select only the projects whose technologies and descriptions strongly align with the job's requirements.
-            - For each project, rewrite the description into a concise list of achievements.
-            - **Constraint**: Each project must have a **maximum of 4 bullet points**. The project **name** must be rewritten to be concise and professional, ideally **under 30 characters**.
-            - **Quantification**: As with experience, quantify the outcomes of the project work (e.g., "Achieved 95% test coverage using Pytest," or "Handled 1,000 concurrent users with minimal performance degradation.").
+        3.  **`tailored_projects`**:
+            - Select only projects whose technologies and descriptions strongly align with the job's requirements.
+            - **Focus**: Rewrite descriptions to highlight the project's **outcome** and the **problem it solved**.
+            - **Constraint**: Each project must have a **maximum of 4 bullet points**. **must be between 110 and 120 characters strictly**.
+            - **Project Naming**: The project `name` must be rewritten to be concise and professional, ideally **under 25 characters**.
+            - **Quantification**: As with experience, quantify outcomes (e.g., "Achieved 95% test coverage," "Processed 10,000 records per second").
+            - **Conciseness**: Each bullet point **must be a single, concise line of text**.
 
-        4.  **`tailored_skills`**: 
-            - **CRITICAL:** You must create a new skills object by filtering the User Profile's skills.
-            - First, carefully review the `required_skills` list in the Job Analysis.
-            - Then, for each skill in the User Profile, you must decide whether to keep or discard it.
-            - A skill should only be kept if it **directly matches or is a very close equivalent** to a skill listed in the `required_skills`.
-            - For example, if the job requires "Kubernetes," the user's "Docker" skill is relevant and should be kept. If the job requires "Python," the user's "Python" skill should be kept. If the job does not mention anything about data visualization, the user's "Power BI" skill **must be discarded**.
-            - Maintain the original skill categories from the User Profile. If a category becomes empty after filtering, omit the entire category from the output.
+        4.  **`tailored_skills`**:
+            - **CRITICAL**: Create a new skills object by filtering the User Profile's skills against the `required_skills` from the Job Analysis.
+            - A skill should only be kept if it **directly matches or is a very close equivalent** to a required skill. For example, if the job requires "Kubernetes," the user's "Docker" is relevant and should be kept. If the job does not mention data visualization, "Power BI" **must be discarded**.
+            - Maintain the original skill categories. Omit any category that becomes empty after filtering.
 
         5.  **`education`**:
-            - Copy the `education` section from the User Profile into the output **verbatim**. Do not change, rewrite, or tailor this section in any way. It must be carried over exactly as it appears in the input.
+            - Copy the `education` section from the User Profile into the output **verbatim**. Do not alter this section.
 
-        The output must be a single, valid JSON object and nothing else. Do not add explanations or surrounding text.
+        The output must be a single, valid JSON object and nothing else.
 
         **Tailored Content JSON Output:**
         """

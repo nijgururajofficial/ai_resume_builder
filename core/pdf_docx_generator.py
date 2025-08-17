@@ -29,40 +29,55 @@ class PdfDocxGenerator:
         bottom_bdr.set(qn('w:color'), '000000')
         p_bdr.append(bottom_bdr)
 
-    # def _add_skills_table_docx(self, doc, skill_lines):
-    #     num_skills = len(skill_lines)
-    #     if num_skills == 0:
-    #         return
+    def _add_skills_section(self, doc, lines, index):
+        """Adds the SKILLS section as a two-column table."""
+        # 1. Add the "SKILLS" header with a border
+        p = doc.add_paragraph()
+        run = p.add_run("SKILLS")
+        run.font.bold = True
+        run.font.size = Pt(11)
+        p.paragraph_format.space_before = Pt(8)
+        p.paragraph_format.space_after = Pt(4)
+        self._set_paragraph_border(p)
+        
+        # 2. Collect all skill lines immediately following the header
+        skill_lines = []
+        i = index + 1
+        while i < len(lines) and lines[i].strip().startswith('**'):
+            skill_lines.append(lines[i].strip().replace('**', ''))
+            i += 1
+        
+        if not skill_lines:
+            return i
 
-    #     split_point = math.ceil(num_skills / 2)
-    #     left_col_skills = skill_lines[:split_point]
-    #     right_col_skills = skill_lines[split_point:]
+        # 3. Create a two-column table
+        num_skills = len(skill_lines)
+        num_rows = math.ceil(num_skills / 2)
+        table = doc.add_table(rows=num_rows, cols=2)
+        table.autofit = False
+        table.columns[0].width = Inches(3.75)
+        table.columns[1].width = Inches(3.75)
 
-    #     num_rows = len(left_col_skills)
-    #     table = doc.add_table(rows=num_rows, cols=2)
-    #     table.autofit = False
-    #     table.columns[0].width = Inches(3.75)
-    #     table.columns[1].width = Inches(3.75)
+        # 4. Populate the table
+        for row in range(num_rows):
+            # Populate left column
+            left_index = row
+            raw_category, raw_skills = skill_lines[left_index].split(':', 1)
+            p_left = table.cell(row, 0).paragraphs[0]
+            p_left.paragraph_format.space_after = Pt(2)
+            p_left.add_run(f"{raw_category.replace('**', '').strip()}:").bold = True
+            p_left.add_run(f" {raw_skills.strip()}")
 
-    #     for i in range(num_rows):
-    #         raw_category_left, raw_skills_left = left_col_skills[i].split(':', 1)
-    #         clean_category_left = raw_category_left.replace('**', '').strip()
-    #         clean_skills_left = raw_skills_left.replace('**', '').strip()
-
-    #         p_left = table.cell(i, 0).paragraphs[0]
-    #         p_left.paragraph_format.space_after = Pt(0)
-    #         p_left.add_run(f"{clean_category_left}:").bold = True
-    #         p_left.add_run(f" {clean_skills_left}")
-
-    #         if i < len(right_col_skills):
-    #             raw_category_right, raw_skills_right = right_col_skills[i].split(':', 1)
-    #             clean_category_right = raw_category_right.replace('**', '').strip()
-    #             clean_skills_right = raw_skills_right.replace('**', '').strip()
-
-    #             p_right = table.cell(i, 1).paragraphs[0]
-    #             p_right.paragraph_format.space_after = Pt(0)
-    #             p_right.add_run(f"{clean_category_right}:").bold = True
-    #             p_right.add_run(f" {clean_skills_right}")
+            # Populate right column if it exists
+            right_index = row + num_rows
+            if right_index < num_skills:
+                raw_category, raw_skills = skill_lines[right_index].split(':', 1)
+                p_right = table.cell(row, 1).paragraphs[0]
+                p_right.paragraph_format.space_after = Pt(2)
+                p_right.add_run(f"{raw_category.replace('**', '').strip()}:").bold = True
+                p_right.add_run(f" {raw_skills.strip()}")
+        
+        return i
 
     def to_docx(self, output_path: str):
         logging.info(f"Generating styled DOCX file at: {output_path}")
@@ -95,39 +110,13 @@ class PdfDocxGenerator:
                 p = doc.add_paragraph(line)
                 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
                 p.paragraph_format.space_after = Pt(8)
+                self._set_paragraph_border(p)
 
             elif line.startswith('## '):
                 # --- FIX APPLIED HERE: Simplified SKILLS section logic ---
                 if "SKILLS" in line.upper():
                     # 1. Add the "SKILLS" header with a border
-                    p = doc.add_paragraph()
-                    run = p.add_run("SKILLS")
-                    run.font.bold = True
-                    run.font.size = Pt(11)
-                    p.paragraph_format.space_before = Pt(6)
-                    p.paragraph_format.space_after = Pt(4)
-                    self._set_paragraph_border(p)
-                    
-                    # 2. Collect all skill lines
-                    skill_lines = []
-                    i += 1
-                    while i < len(lines) and ":" in lines[i]:
-                        skill_lines.append(lines[i].strip())
-                        i += 1
-                    
-                    # 3. Add each skill line as a simple, formatted paragraph
-                    for skill_line in skill_lines:
-                        p_skill = doc.add_paragraph()
-                        p_skill.paragraph_format.space_after = Pt(2)
-                        
-                        if ':' in skill_line:
-                            category, skills = skill_line.split(':', 1)
-                            clean_category = category.replace('**', '').strip()
-                            clean_skills = skills.replace('**', '').strip()
-                            
-                            p_skill.add_run(f"{clean_category}:").bold = True
-                            p_skill.add_run(f" {clean_skills}")
-                    
+                    i = self._add_skills_section(doc, lines, i)
                     continue # Skip to the next major section
                 else:
                     # Logic for other headers (Experience, Projects, etc.)
@@ -135,8 +124,8 @@ class PdfDocxGenerator:
                     run = p.add_run(line.replace('## ', '').upper())
                     run.font.bold = True
                     run.font.size = Pt(11)
-                    p.paragraph_format.space_before = Pt(8)
-                    p.paragraph_format.space_after = Pt(4)
+                    p.paragraph_format.space_before = Pt(5)
+                    p.paragraph_format.space_after = Pt(1)
                     self._set_paragraph_border(p)
 
             # Logic for two-column Experience headers
