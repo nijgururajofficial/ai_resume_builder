@@ -1,9 +1,11 @@
+from turtle import left
 from typing import Dict, List
 
 class MarkdownFormattingAgent:
     """
     Formats tailored content into a clean, ATS-compliant Markdown resume.
-    This version creates a specific structure for complex, single-line headers.
+    This version creates a specific structure for complex, single-line headers
+    and ensures all bullet point content is plain text.
     """
 
     def _format_contact(self, contact: Dict) -> str:
@@ -15,23 +17,24 @@ class MarkdownFormattingAgent:
         ]
         return ' | '.join(filter(None, parts))
 
-    # FIXED: This method is now much simpler and creates the single-line structure.
+    # --- THIS IS THE ONLY METHOD THAT HAS BEEN MODIFIED ---
     def _format_experience_or_projects(self, title: str, items: List[Dict], is_project: bool = False) -> List[str]:
         lines = [f"## {title}"]
         for item in items:
             if is_project:
-                left_part = f"**{item.get('name', '')}**"
-                right_part = f"*{item.get('technologies', '')}*"
-            else: # Work Experience
-                left_part = f"**{item.get('title', '')}** | {item.get('company', '')}"
-                right_part = f"{item.get('location', '')} | {item.get('dates', '')}"
-            
-            # Combine into a single line with a unique separator
-            lines.append(f"{left_part} ||| {right_part}")
+                # Create a simple, single line for the project header. No '|||'.
+                project_header = f"**{item.get('name', '')}** | *{item.get('technologies', '')}*"
+                lines.append(project_header)
+            else: # Work Experience still uses the two-column separator
+                left_part = f"**{item.get('title', '')}** | {item.get('company', '')} | {item.get('location', '')}"
+                right_part = f"{item.get('dates', '')}"
+                lines.append(f"{left_part} ||| {right_part}")
             
             description_points = item.get('description' if is_project else 'responsibilities', [])
+            
             for point in description_points:
-                lines.append(f"- {point}")
+                clean_point = point.replace('**', '').replace('*', '').replace('`', '')
+                lines.append(f"- {clean_point}")
             lines.append("")
         return lines
 
@@ -44,15 +47,24 @@ class MarkdownFormattingAgent:
         return lines
 
     def _format_education(self, items: List[Dict]) -> List[str]:
+        """
+        Formats education with two simple lines to ensure it is always rendered.
+        """
         lines = [f"## Education"]
         for item in items:
-            left_part = f"**{item.get('degree', '')}** | {item.get('institution', '')}"
-            right_part = f"{item.get('dates', '')}"
-            lines.append(f"{left_part} ||| {right_part}")
+            # Line 1: Degree and Dates, formatted like a project header.
+            degree_line = f"**{item.get('degree', '')}** ||| {item.get('dates', '')}"
+            lines.append(degree_line)
+            
+            # Line 2: Institution on its own line.
+            institution_line = f"*{item.get('institution', '')}*"
+            lines.append(institution_line)
+            
             lines.append("")
         return lines
 
     def run(self, user_profile: Dict, tailored_content: Dict) -> str:
+        """Constructs the full resume in a structured Markdown format."""
         resume_parts = []
         resume_parts.append(f"# {user_profile.get('name', 'User Name')}")
         resume_parts.append(self._format_contact(user_profile.get('contact', {})))

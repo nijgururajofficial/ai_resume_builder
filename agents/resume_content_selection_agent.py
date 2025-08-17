@@ -69,7 +69,7 @@ class ResumeContentSelectionAgent:
         3.  **`tailored_projects`**: 
             - Select only the projects whose technologies and descriptions strongly align with the job's requirements.
             - For each project, rewrite the description into a concise list of achievements.
-            - **Constraint**: Each project must have a **maximum of 4 bullet points**. The project **name** must be rewritten to be concise and professional, ideally **under 60 characters**.
+            - **Constraint**: Each project must have a **maximum of 4 bullet points**. The project **name** must be rewritten to be concise and professional, ideally **under 30 characters**.
             - **Quantification**: As with experience, quantify the outcomes of the project work (e.g., "Achieved 95% test coverage using Pytest," or "Handled 1,000 concurrent users with minimal performance degradation.").
 
         4.  **`tailored_skills`**: 

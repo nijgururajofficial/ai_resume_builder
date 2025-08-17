@@ -29,40 +29,40 @@ class PdfDocxGenerator:
         bottom_bdr.set(qn('w:color'), '000000')
         p_bdr.append(bottom_bdr)
 
-    def _add_skills_table_docx(self, doc, skill_lines):
-        num_skills = len(skill_lines)
-        if num_skills == 0:
-            return
+    # def _add_skills_table_docx(self, doc, skill_lines):
+    #     num_skills = len(skill_lines)
+    #     if num_skills == 0:
+    #         return
 
-        split_point = math.ceil(num_skills / 2)
-        left_col_skills = skill_lines[:split_point]
-        right_col_skills = skill_lines[split_point:]
+    #     split_point = math.ceil(num_skills / 2)
+    #     left_col_skills = skill_lines[:split_point]
+    #     right_col_skills = skill_lines[split_point:]
 
-        num_rows = len(left_col_skills)
-        table = doc.add_table(rows=num_rows, cols=2)
-        table.autofit = False
-        table.columns[0].width = Inches(3.75)
-        table.columns[1].width = Inches(3.75)
+    #     num_rows = len(left_col_skills)
+    #     table = doc.add_table(rows=num_rows, cols=2)
+    #     table.autofit = False
+    #     table.columns[0].width = Inches(3.75)
+    #     table.columns[1].width = Inches(3.75)
 
-        for i in range(num_rows):
-            raw_category_left, raw_skills_left = left_col_skills[i].split(':', 1)
-            clean_category_left = raw_category_left.replace('**', '').strip()
-            clean_skills_left = raw_skills_left.replace('**', '').strip()
+    #     for i in range(num_rows):
+    #         raw_category_left, raw_skills_left = left_col_skills[i].split(':', 1)
+    #         clean_category_left = raw_category_left.replace('**', '').strip()
+    #         clean_skills_left = raw_skills_left.replace('**', '').strip()
 
-            p_left = table.cell(i, 0).paragraphs[0]
-            p_left.paragraph_format.space_after = Pt(0)
-            p_left.add_run(f"{clean_category_left}:").bold = True
-            p_left.add_run(f" {clean_skills_left}")
+    #         p_left = table.cell(i, 0).paragraphs[0]
+    #         p_left.paragraph_format.space_after = Pt(0)
+    #         p_left.add_run(f"{clean_category_left}:").bold = True
+    #         p_left.add_run(f" {clean_skills_left}")
 
-            if i < len(right_col_skills):
-                raw_category_right, raw_skills_right = right_col_skills[i].split(':', 1)
-                clean_category_right = raw_category_right.replace('**', '').strip()
-                clean_skills_right = raw_skills_right.replace('**', '').strip()
+    #         if i < len(right_col_skills):
+    #             raw_category_right, raw_skills_right = right_col_skills[i].split(':', 1)
+    #             clean_category_right = raw_category_right.replace('**', '').strip()
+    #             clean_skills_right = raw_skills_right.replace('**', '').strip()
 
-                p_right = table.cell(i, 1).paragraphs[0]
-                p_right.paragraph_format.space_after = Pt(0)
-                p_right.add_run(f"{clean_category_right}:").bold = True
-                p_right.add_run(f" {clean_skills_right}")
+    #             p_right = table.cell(i, 1).paragraphs[0]
+    #             p_right.paragraph_format.space_after = Pt(0)
+    #             p_right.add_run(f"{clean_category_right}:").bold = True
+    #             p_right.add_run(f" {clean_skills_right}")
 
     def to_docx(self, output_path: str):
         logging.info(f"Generating styled DOCX file at: {output_path}")
@@ -97,7 +97,9 @@ class PdfDocxGenerator:
                 p.paragraph_format.space_after = Pt(8)
 
             elif line.startswith('## '):
+                # --- FIX APPLIED HERE: Simplified SKILLS section logic ---
                 if "SKILLS" in line.upper():
+                    # 1. Add the "SKILLS" header with a border
                     p = doc.add_paragraph()
                     run = p.add_run("SKILLS")
                     run.font.bold = True
@@ -106,14 +108,29 @@ class PdfDocxGenerator:
                     p.paragraph_format.space_after = Pt(4)
                     self._set_paragraph_border(p)
                     
+                    # 2. Collect all skill lines
                     skill_lines = []
                     i += 1
-                    while i < len(lines) and lines[i].strip().startswith('**'):
+                    while i < len(lines) and ":" in lines[i]:
                         skill_lines.append(lines[i].strip())
                         i += 1
-                    self._add_skills_table_docx(doc, skill_lines)
-                    continue
+                    
+                    # 3. Add each skill line as a simple, formatted paragraph
+                    for skill_line in skill_lines:
+                        p_skill = doc.add_paragraph()
+                        p_skill.paragraph_format.space_after = Pt(2)
+                        
+                        if ':' in skill_line:
+                            category, skills = skill_line.split(':', 1)
+                            clean_category = category.replace('**', '').strip()
+                            clean_skills = skills.replace('**', '').strip()
+                            
+                            p_skill.add_run(f"{clean_category}:").bold = True
+                            p_skill.add_run(f" {clean_skills}")
+                    
+                    continue # Skip to the next major section
                 else:
+                    # Logic for other headers (Experience, Projects, etc.)
                     p = doc.add_paragraph()
                     run = p.add_run(line.replace('## ', '').upper())
                     run.font.bold = True
@@ -122,38 +139,36 @@ class PdfDocxGenerator:
                     p.paragraph_format.space_after = Pt(4)
                     self._set_paragraph_border(p)
 
-            # --- THIS IS THE ONLY BLOCK THAT HAS BEEN MODIFIED ---
-            elif line.startswith('**') and '|||' in line:
+            # Logic for two-column Experience headers
+            elif '|||' in line:
                 table = doc.add_table(rows=1, cols=2)
                 table.autofit = False
                 table.columns[0].width = Inches(5.0)
                 table.columns[1].width = Inches(2.5)
-
                 left_content, right_content = [p.strip() for p in line.split('|||')]
                 left_cell, right_cell = table.rows[0].cells
-
-                # --- FIX APPLIED HERE (Left Side) ---
                 left_p = left_cell.paragraphs[0]
-                cleaned_left = left_content.replace('**', '').strip() # Clean bold markers
+                cleaned_left = left_content.replace('**', '').strip()
                 parts = cleaned_left.split('|')
                 left_p.add_run(parts[0].strip()).bold = True
                 if len(parts) > 1:
                     left_p.add_run(f" | {parts[1].strip()}")
-
-                # --- FIX APPLIED HERE (Right Side) ---
                 right_p = right_cell.paragraphs[0]
-                is_italic = right_content.startswith('*') and right_content.endswith('*')
-                # Clean ALL asterisks from the string, regardless of formatting
-                cleaned_right = right_content.replace('**', '').replace('*', '').strip()
-                
-                run = right_p.add_run(cleaned_right)
-                if is_italic:
-                    run.italic = True
+                right_p.text = right_content.strip()
                 right_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-                
                 for cell in [left_cell, right_cell]:
                     cell.paragraphs[0].paragraph_format.space_before = Pt(0)
                     cell.paragraphs[0].paragraph_format.space_after = Pt(0)
+
+            # Logic for single-line Project and Education headers
+            elif line.startswith('**') and '|' in line:
+                p = doc.add_paragraph()
+                p.paragraph_format.space_after = Pt(2)
+                parts = line.split('|')
+                p.add_run(parts[0].replace('**', '').strip()).bold = True
+                if len(parts) > 1:
+                    p.add_run(' | ')
+                    p.add_run(parts[1].replace('*', '').strip()).italic = True
 
             elif line.startswith('- '):
                 p = doc.add_paragraph(style='List Bullet')
@@ -162,6 +177,16 @@ class PdfDocxGenerator:
                 p.paragraph_format.space_before = Pt(0)
                 p.paragraph_format.space_after = Pt(2)
             
+            # Default handler for simple lines (like the Institution name)
+            else:
+                p = doc.add_paragraph()
+                if line.startswith('*') and line.endswith('*'):
+                    p.add_run(line.replace('*', '')).italic = True
+                    p.paragraph_format.space_before = Pt(0)
+                    p.paragraph_format.space_after = Pt(4)
+                else:
+                    p.add_paragraph(line)
+
             i += 1
         
         doc.save(output_path)

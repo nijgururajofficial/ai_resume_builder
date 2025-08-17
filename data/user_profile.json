@@ -98,13 +98,13 @@
     ],
     "education": [
       {
-        "degree": "Master of Science in Computer Science",
+        "degree": "Master of Science, Computer Science",
         "institution": "Illinois Institute of Technology, Chicago, IL",
         "dates": "2024 - Present",
         "coursework": "Machine Learning, Advanced Database Organization, Data Preparation and Analysis"
       },
       {
-        "degree": "Bachelors of Engineering in Computer Engineering",
+        "degree": "Bachelors of Engineering, Computer Engineering",
         "institution": "Savitribai Phule Pune University, Pune, India",
         "dates": "2020 - 2024",
         "coursework": "Big Data, Deep Learning, DBMS, Design and Analysis of Algorithms"

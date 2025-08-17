@@ -1,47 +1,43 @@
-﻿About the job
-Machinify is the leading provider of AI-powered software products that transform healthcare claims and payment operations. Each year, the healthcare industry generates over $200B in claims mispayments, creating incredible waste, friction and frustration for all participants: patients, providers, and especially payers. Machinify’s revolutionary AI-platform has enabled the company to develop and deploy, at light speed, industry-specific products that increase the speed and accuracy of claims processing by orders of magnitude.
+﻿Meet The Team:
 
-Why This Role Matters
+Founded in 2015, Acubed is the Silicon Valley innovation center of Airbus. As a global leader in aerospace, Airbus aims to make things fly . Our mission is to provide a lens into the future for the industry, transforming risk into opportunity to build the future of flight now. At Acubed, we strive to propel innovation to market faster, broaden the talent pool in emerging aerospace careers and simultaneously help drive a culture change across Airbus.
 
-As a Data Engineer I, you’ll join a fast-paced, high-impact team focused on building scalable, reliable data systems that power our core AI-driven platform. You’ll work side-by-side with senior engineers, product managers, and data scientists to help ingest, standardize, and deliver data that drives critical healthcare and payment decisions.
+Our Wayfinder team is building scalable, certifiable autonomy systems to power the next generation of commercial aircraft. Our team of experts is driving the maturation of machine learning and other core technologies for autonomous flight; we are creating a reference architecture that includes hardware , software , and a data-driven development process to allow aircraft to perceive and react to their environment . Autonomous flight is transforming the transportation industry, and our team is at the heart of this revolution.
 
-You’ll play a hands-on role in turning messy, complex external data into structured, trustworthy datasets — learning best practices for data modeling, pipeline development, and production operations. This is a high-growth opportunity for someone who is curious, driven, and excited to learn the ropes of real-world data engineering.
+ Your Working Environment : 
 
-What You’ll Do
+Located in Silicon Valley, Acubed is the innovation center of Airbus - where our teams aim to provide a lens into the future for the industry, transforming risk into opportunity to build the future of flight right now. Our project portfolio takes on some of the industry’s biggest challenges and opportunities.
 
-Build and maintain scalable data pipelines using Python, Spark SQL, and Airflow.
-Assist in onboarding new customers by helping transform their raw files (CSV, JSON, Parquet) into internal formats.
-Collaborate with senior engineers to improve data quality, observability, and reusability.
-Learn how to standardize external healthcare data (837 claims, EHR, etc.) into canonical internal models.
-Monitor and debug data pipeline issues with support from senior engineers.
-Work closely with analysts, scientists, and product managers to understand data requirements and business context.
-Participate in code reviews, design discussions, and debugging sessions.
-Contribute to documentation and internal tooling to improve team productivity.
-Grow your understanding of domain models, data contracts, and business context.
-Grow into owning workflows end-to-end, improving performance, and contributing to architectural decisions.
+How We Care For You:
 
-What You Bring
+ Great medical, dental, orthodontic and vision insurance and a 24/7 counseling service. 
+ Free 24 Hour Fitness membership, which allows access to all locations in your region at no cost to you. Other options and onsite fitness classes available. Free onsite bikes for outdoor use. 
+ Eat catered healthy, delicious food with your colleagues. Participate in happy hours, offsites and other social events. 
+ If you choose flight training, we’ll fund your flight lessons ( up to $15,750) in either fixed-wing aircraft or helicopters. 
+ Employees are eligible for 5 weeks vacation (25 days) their first year and 6 weeks (30 days) after two years of service. This PTO is in addition to 12 national holidays and unlimited sick days. 
 
-Are a recent grad (BS/MS in CS, Data Engineering, or related field) or early-career engineer with 0–3 years of industry experience.
-Strong programming fundamentals and proficiency in Python.
-Exposure to SQL and a desire to work with large datasets.
-Curiosity about real-world data problems, particularly those involving messy, complex data.
-Hunger to learn — you enjoy getting into the weeds, asking good questions, and figuring things out.
-Solid communication skills — able to collaborate effectively with both technical and non-technical partners.
-Attention to detail and a strong sense of ownership.
+Your Challenges:
 
-Bonus Points
+ We are looking for a Data Engineer who specializes in managing and optimizing data pipelines , with a specific focus on AI/ML data and applications . 
+ The ideal candidate will have experience in building data pipelines , implementing data infrastructure , ensuring high-quality labeled datasets, and collaborating with cross-functional teams to support our computer vision initiatives. 
+ Oversee data lifecycle management, including data versioning, lineage tracking, quality assurance , and reporting 
+ Design , build , and optimize robust and scalable data ingestion and labeling pipelines specifically for computer vision datasets 
+ Manage and optimize data storage solutions to ensure efficient data retrieval and processing 
+ Monitor and troubleshoot data pipeline issues, ensuring timely resolution and minimal disruption to project timelines. 
+ Collaborate closely with AI/ML Engineers and Researchers to understand their data needs and provide efficient data solutions 
 
-Prior internship or co-op in data engineering, analytics, or infra roles.
-Experience with cloud platforms like AWS, GCP, or Azure.
-Exposure to version control (e.g., Git), Docker, or CI/CD.
-Familiarity with distributed data processing (Spark, Hadoop, etc.)
-Contributions to open-source, side projects, or technical blogs.
+Your Boarding Pass:
 
-Why Join Us
+ Bachelor's in Computer Science, Data Engineering, or a related field, with 2+ years of professional experience as a Data Engineer 
+ Strong Python and SQL; Good software development fundamentals a must Demonstrated experience designing, building, and maintaining production-grade data pipelines 
+ Proficiency with data modeling , ETL processes , data pipeline operations , and databases (e.g., Postgresql, Clickhouse). 
+ Excellent problem-solving skills and attention to detail 
+ Strong communication skills and the ability to work effectively in a collaborative team environment. 
 
-Mentorship & Growth: Learn from senior engineers, with opportunities for rapid growth.
-Mission-driven — Help shape the future of AI-powered decision-making in healthcare.
-Impact from Day One: Real ownership. Real systems. Real users.
+Nice To Have Experience:
 
-If you're looking to kick-start your career in data engineering and want to work on real problems with real impact — let’s talk.
+ Strong skills with data presentation tools, dashboards, and visualization such as Grafana, Plotly , Voxel51 
+ Workflow orchestration tools, particularly Dagster 
+ Experienced with databases like Postgresql, Clickhouse 
+ Automation tools and CI/CD pipelines and containerization technologies (e.g. Docker) 
+ Interest in aviation 
