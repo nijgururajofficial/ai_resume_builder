@@ -23,6 +23,8 @@ class JobDescriptionAnalysisAgent:
             gemini_client: An instance of a client configured to handle Gemini API calls.
         """
         self.llm = gemini_client
+        self.last_response = ""
+        self.last_prompt = ""
         logging.basicConfig(level=logging.INFO)
 
     def _create_prompt(self, job_description: str) -> str:
@@ -62,10 +64,12 @@ class JobDescriptionAnalysisAgent:
             A dictionary with the extracted job details. Returns an empty dict on failure.
         """
         prompt = self._create_prompt(job_description)
+        self.last_prompt = prompt
         
         try:
             # This makes the actual call to the Gemini API.
             response_text = self.llm.generate_text(prompt)
+            self.last_response = response_text
             
             # The response from the LLM is often enclosed in markdown backticks.
             # This cleans the response before parsing.

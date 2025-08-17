@@ -1,0 +1,47 @@
+﻿About the job
+Machinify is the leading provider of AI-powered software products that transform healthcare claims and payment operations. Each year, the healthcare industry generates over $200B in claims mispayments, creating incredible waste, friction and frustration for all participants: patients, providers, and especially payers. Machinify’s revolutionary AI-platform has enabled the company to develop and deploy, at light speed, industry-specific products that increase the speed and accuracy of claims processing by orders of magnitude.
+
+Why This Role Matters
+
+As a Data Engineer I, you’ll join a fast-paced, high-impact team focused on building scalable, reliable data systems that power our core AI-driven platform. You’ll work side-by-side with senior engineers, product managers, and data scientists to help ingest, standardize, and deliver data that drives critical healthcare and payment decisions.
+
+You’ll play a hands-on role in turning messy, complex external data into structured, trustworthy datasets — learning best practices for data modeling, pipeline development, and production operations. This is a high-growth opportunity for someone who is curious, driven, and excited to learn the ropes of real-world data engineering.
+
+What You’ll Do
+
+Build and maintain scalable data pipelines using Python, Spark SQL, and Airflow.
+Assist in onboarding new customers by helping transform their raw files (CSV, JSON, Parquet) into internal formats.
+Collaborate with senior engineers to improve data quality, observability, and reusability.
+Learn how to standardize external healthcare data (837 claims, EHR, etc.) into canonical internal models.
+Monitor and debug data pipeline issues with support from senior engineers.
+Work closely with analysts, scientists, and product managers to understand data requirements and business context.
+Participate in code reviews, design discussions, and debugging sessions.
+Contribute to documentation and internal tooling to improve team productivity.
+Grow your understanding of domain models, data contracts, and business context.
+Grow into owning workflows end-to-end, improving performance, and contributing to architectural decisions.
+
+What You Bring
+
+Are a recent grad (BS/MS in CS, Data Engineering, or related field) or early-career engineer with 0–3 years of industry experience.
+Strong programming fundamentals and proficiency in Python.
+Exposure to SQL and a desire to work with large datasets.
+Curiosity about real-world data problems, particularly those involving messy, complex data.
+Hunger to learn — you enjoy getting into the weeds, asking good questions, and figuring things out.
+Solid communication skills — able to collaborate effectively with both technical and non-technical partners.
+Attention to detail and a strong sense of ownership.
+
+Bonus Points
+
+Prior internship or co-op in data engineering, analytics, or infra roles.
+Experience with cloud platforms like AWS, GCP, or Azure.
+Exposure to version control (e.g., Git), Docker, or CI/CD.
+Familiarity with distributed data processing (Spark, Hadoop, etc.)
+Contributions to open-source, side projects, or technical blogs.
+
+Why Join Us
+
+Mentorship & Growth: Learn from senior engineers, with opportunities for rapid growth.
+Mission-driven — Help shape the future of AI-powered decision-making in healthcare.
+Impact from Day One: Real ownership. Real systems. Real users.
+
+If you're looking to kick-start your career in data engineering and want to work on real problems with real impact — let’s talk.

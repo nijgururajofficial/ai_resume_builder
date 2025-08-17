@@ -35,6 +35,10 @@ WeasyPrint
 # Used to convert the final Markdown resume into an HTML string before PDF generation.
 markdown2
 
+# HTML to PDF conversion library.
+# Used by PdfDocxGenerator to convert HTML resumes to PDF format.
+xhtml2pdf
+
 # -----------------------------------------------------------------------------
 # Utilities
 # -----------------------------------------------------------------------------
@@ -42,3 +46,7 @@ markdown2
 # Reads key-value pairs from a .env file and sets them as environment variables.
 # Used in main.py to securely load the GEMINI_API_KEY without hardcoding it.
 python-dotenv
+
+# Data manipulation and analysis library.
+# Used by ResponseLogger for analyzing agent performance and generating reports.
+pandas

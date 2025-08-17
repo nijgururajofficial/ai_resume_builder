@@ -1,3 +1,13 @@
 airesumevenv/
 .env
 output/
+agents/__pycache__/
+core/__pycache__/
+data/__pycache__/
+output/__pycache__/
+temp/__pycache__/
+tests/__pycache__/
+.env
+.DS_Store
+.vscode
+test_main.py

@@ -12,6 +12,7 @@ An intelligent system that generates highly tailored, ATS-compliant resumes by l
 
 * [How It Works: The Agentic Workflow](#how-it-works-the-agentic-workflow)
 * [Core Features](#core-features)
+* [Response Logging & Monitoring](#response-logging--monitoring)
 * [Technology Stack](#technology-stack)
 * [Project Structure](#project-structure)
 * [Setup and Installation](#setup-and-installation)
@@ -32,6 +33,8 @@ The application follows a modular, agent-based workflow managed by LangGraph. Th
 
 4.  **📄 `PdfDocxGenerator`**: Finally, this utility converts the formatted Markdown into two professional outputs: a `.docx` file for easy editing and a visually styled `.pdf` file, ensuring perfect fonts, spacing, and layout for submission.
 
+5.  **📊 `ResponseLogger`**: (Optional) Captures detailed execution data from all agents for debugging, performance monitoring, and continuous improvement.
+
 ---
 
 ## Core Features
@@ -42,6 +45,71 @@ The application follows a modular, agent-based workflow managed by LangGraph. Th
 * **📊 Quantified Achievements**: Intelligently highlights and prioritizes measurable results and metrics from the user's profile to demonstrate impact.
 * **📄 Dual Format Output**: Generates resumes in both `.docx` and visually styled `.pdf` formats, ready for any application platform.
 * **🔒 Secure & Configurable**: Manages API keys via environment variables and user data via a simple JSON profile.
+* **📈 Performance Monitoring**: Comprehensive logging and analysis of agent execution for debugging and optimization.
+
+---
+
+## Response Logging & Monitoring
+
+The AI Resume Builder includes comprehensive response logging that captures detailed information about each agent's execution. This is invaluable for debugging, performance monitoring, and improving the system.
+
+### What Gets Logged
+
+For each agent execution, the system captures:
+
+- **Input Data**: What was passed to the agent
+- **Output Data**: What the agent returned
+- **Execution Time**: How long the agent took to complete
+- **Status**: Success or error status
+- **Error Messages**: Detailed error information if something fails
+- **Raw LLM Responses**: For LLM-based agents, the complete response from Gemini
+- **Prompts Used**: The exact prompts sent to the LLM
+- **Timestamps**: When each agent executed
+
+### Enabling Response Logging
+
+To enable response logging, use the `--log-responses` flag:
+
+```bash
+python main.py --job-desc data/job_description.txt --profile data/user_profile.json --log-responses
+```
+
+### Generated Files
+
+When response logging is enabled, the system creates:
+
+1. **Agent Response Files** (`output/agent_responses/`):
+   - Individual JSON files for each workflow run
+   - Complete workflow state including all agent responses
+   - Timestamped filenames for easy tracking
+
+2. **Performance Reports** (`output/reports/`):
+   - HTML reports with execution statistics
+   - Agent performance comparisons
+   - Error summaries and debugging information
+
+### Using the Response Logger Programmatically
+
+You can also use the `ResponseLogger` class in your own scripts:
+
+```python
+from core.response_logger import ResponseLogger
+
+# Initialize the logger
+logger = ResponseLogger(output_dir="output")
+
+# Save workflow responses
+response_file = logger.save_workflow_responses(final_state)
+
+# Generate performance report
+report_file = logger.generate_performance_report(final_state)
+
+# Analyze agent responses
+analysis = logger.analyze_agent_responses(final_state)
+
+# Access response history
+history = logger.get_agent_response_history(limit=10)
+```
 
 ---
 
@@ -50,7 +118,9 @@ The application follows a modular, agent-based workflow managed by LangGraph. Th
 * **Backend**: Python 3.9+
 * **AI/LLM**: Google Gemini Pro
 * **Agent Framework**: LangGraph
-* **Dependencies**: `google-generativeai`, `langchain`, `python-docx`, `markdown-pdf`
+* **Document Generation**: `python-docx`, `xhtml2pdf`, `WeasyPrint`
+* **Data Analysis**: `pandas` for response analysis and reporting
+* **Dependencies**: `google-generativeai`, `langchain`, `markdown2`
 
 ---
 
@@ -58,17 +128,31 @@ The application follows a modular, agent-based workflow managed by LangGraph. Th
 
 ```
 ai_resume_builder/
-├── agents/                 # Contains the specialized AI agents
-├── core/                   # Core services: Gemini client, orchestrator, document generator
-├── data/                   # Stores the user's master profile
-│   └── user_profile.json
-├── output/                 # Default directory for generated resumes
-├── temp/                   # Stores intermediate outputs for debugging
-├── tests/                  # Unit tests for the system
-├── .env                    # For storing secret API keys
-├── main.py                 # Main application entrypoint (CLI)
-├── requirements.txt        # Project dependencies
-└── README.md               # This file
+├── agents/                     # Contains the specialized AI agents
+│   ├── __init__.py
+│   ├── job_description_analysis_agent.py
+│   ├── resume_content_selection_agent.py
+│   └── markdown_formatting_agent.py
+├── core/                       # Core services and utilities
+│   ├── __init__.py
+│   ├── gemini_client.py       # Google Gemini API client
+│   ├── langgraph_orchestrator.py  # Workflow orchestration
+│   ├── pdf_docx_generator.py  # Document generation
+│   ├── response_logger.py     # Response logging and analysis
+│   └── ats_markdown_template.md
+├── data/                       # Input data directory
+│   ├── user_profile.json      # User's master profile
+│   └── job_description.txt    # Target job description
+├── output/                     # Generated outputs
+│   ├── agent_responses/       # Agent response logs (when enabled)
+│   └── reports/               # Performance reports (when enabled)
+├── temp/                       # Temporary intermediate files
+├── tests/                      # Unit tests
+│   └── test_agents.py
+├── .env                        # Environment variables (API keys)
+├── main.py                     # Main application entrypoint
+├── requirements.txt            # Project dependencies
+└── README.md                   # This file
 ```
 
 ---
@@ -118,28 +202,43 @@ GEMINI_API_KEY="YOUR_GOOGLE_API_KEY_HERE"
 
 Edit the `data/user_profile.json` file to contain your personal information, work experience, education, skills, and projects. Follow the existing JSON structure carefully.
 
+**Important**: Keep both `data/user_profile.json` and `data/job_description.txt` in the `data/` directory. The system expects these files to be in their default locations for optimal functionality.
+
 ---
 
 ## Usage
 
 The application is run from the command line. You must provide a path to a plain text file containing the job description you are targeting.
 
-### Example
+### Basic Usage
 
-1.  Save a job description into a file (e.g., `job_desc.txt`).
-2.  Run the `main.py` script from the root directory:
+1.  Place your job description in `data/job_description.txt`.
+2.  Ensure your profile is in `data/user_profile.json`.
+3.  Run the `main.py` script from the root directory:
 
     ```sh
-    python main.py --job-desc path/to/your/job_desc.txt
+    python main.py
     ```
 
 The script will execute the full pipeline and save the generated `.docx` and `.pdf` resumes into the `output/` directory.
 
+### With Response Logging
+
+To enable comprehensive logging and monitoring:
+
+```sh
+python main.py --log-responses
+```
+
+This will generate additional files for debugging and performance analysis.
+
 ### Command-Line Arguments
 
-* `--job-desc`: **(Required)** Path to the text file containing the job description.
 * `--profile`: (Optional) Path to your user profile JSON file. Defaults to `data/user_profile.json`.
 * `--output-dir`: (Optional) Directory to save the generated resumes. Defaults to `output/`.
+* `--log-responses`: (Optional) Enable detailed response logging for all agents.
+
+**Note**: The system automatically uses `data/job_description.txt` for the job description, so no `--job-desc` argument is needed.
 
 ---
 
@@ -149,3 +248,43 @@ To ensure all components are working correctly, you can run the built-in unit te
 
 ```sh
 python -m unittest discover tests
+```
+
+
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+1. **PDF Generation Errors**: If you encounter PDF generation issues, the system will automatically fall back to WeasyPrint if available.
+
+2. **API Key Issues**: Ensure your `GEMINI_API_KEY` is properly set in the `.env` file or as an environment variable.
+
+3. **Response Logging**: If response logging fails, check that the `output/` directory is writable and that `pandas` is installed.
+
+### Performance Optimization
+
+- Use response logging to identify slow agents and optimize prompts
+- Monitor execution times to identify bottlenecks
+- Review generated reports for insights into system performance
+
+---
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
+
+### Development Guidelines
+
+1. Follow the existing code structure and patterns
+2. Add tests for new functionality
+3. Update documentation for any API changes
+4. Ensure response logging compatibility for new agents
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

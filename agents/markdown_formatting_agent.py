@@ -2,82 +2,73 @@ from typing import Dict, List
 
 class MarkdownFormattingAgent:
     """
-    Formats tailored content into a clean, single-column, ATS-compliant Markdown resume.
-
-    This agent is deterministic and rule-based, not AI-driven. This ensures that
-    the final output strictly adheres to universal ATS formatting standards
-    (e.g., standard fonts, no tables, single column), which is a common
-    failure point for generative models.
+    Formats tailored content into a clean, ATS-compliant Markdown resume.
+    This version creates a specific structure for complex, single-line headers.
     """
 
     def _format_contact(self, contact: Dict) -> str:
-        """Formats contact info into a single, parsable line."""
         parts = [
             contact.get('phone'),
             contact.get('github'),
             contact.get('linkedin'),
             contact.get('email')
         ]
-        # Filter out any empty strings and join with a standard separator.
         return ' | '.join(filter(None, parts))
 
-    def _format_section(self, title: str, items: List[Dict], is_project: bool = False) -> List[str]:
-        """A generic formatter for Experience and Projects sections."""
-        lines = [f"## {title}\n"]
+    # FIXED: This method is now much simpler and creates the single-line structure.
+    def _format_experience_or_projects(self, title: str, items: List[Dict], is_project: bool = False) -> List[str]:
+        lines = [f"## {title}"]
         for item in items:
             if is_project:
-                header = f"**{item.get('name', '')}** | *{item.get('technologies', '')}*"
-                description_points = item.get('description', [])
+                left_part = f"**{item.get('name', '')}**"
+                right_part = f"*{item.get('technologies', '')}*"
             else: # Work Experience
-                header = f"**{item.get('title', '')}** | {item.get('company', '')} | {item.get('location', '')} | {item.get('dates', '')}"
-                description_points = item.get('responsibilities', [])
+                left_part = f"**{item.get('title', '')}** | {item.get('company', '')}"
+                right_part = f"{item.get('location', '')} | {item.get('dates', '')}"
             
-            lines.append(header)
+            # Combine into a single line with a unique separator
+            lines.append(f"{left_part} ||| {right_part}")
+            
+            description_points = item.get('description' if is_project else 'responsibilities', [])
             for point in description_points:
                 lines.append(f"- {point}")
-            lines.append("")  # Add a blank line for readability between entries.
+            lines.append("")
         return lines
 
     def _format_skills(self, skills: Dict) -> List[str]:
-        """Formats the skills section from a dictionary."""
-        lines = ["## Skills\n"]
+        """Formats skills with one category per line for the generator to parse."""
+        lines = [f"## Skills"]
         for category, skill_list in skills.items():
-            if skill_list: # Only add category if it has skills
-                lines.append(f"**{category}**: {', '.join(skill_list)}")
+            if skill_list:
+                lines.append(f"**{category}:** {', '.join(skill_list)}")
+        return lines
+
+    def _format_education(self, items: List[Dict]) -> List[str]:
+        lines = [f"## Education"]
+        for item in items:
+            left_part = f"**{item.get('degree', '')}** | {item.get('institution', '')}"
+            right_part = f"{item.get('dates', '')}"
+            lines.append(f"{left_part} ||| {right_part}")
+            lines.append("")
         return lines
 
     def run(self, user_profile: Dict, tailored_content: Dict) -> str:
-        """
-        Constructs the full resume in ATS-compliant Markdown.
-
-        Args:
-            user_profile: The user's data, needed for contact info.
-            tailored_content: The LLM-generated tailored content.
-
-        Returns:
-            A string containing the complete resume in Markdown format.
-        """
         resume_parts = []
-
-        # 1. Name and Headline
         resume_parts.append(f"# {user_profile.get('name', 'User Name')}")
-        if tailored_content.get('headline'):
-            resume_parts.append(f"### {tailored_content['headline']}\n")
-        
-        # 2. Contact Information (must be in the main body)
-        resume_parts.append(self._format_contact(user_profile.get('contact', {})) + "\n")
-        
-        # 3. Work Experience
-        if tailored_content.get('tailored_experience'):
-            resume_parts.extend(self._format_section("Work Experience", tailored_content['tailored_experience']))
-            
-        # 4. Projects
-        if tailored_content.get('tailored_projects'):
-            resume_parts.extend(self._format_section("Projects", tailored_content['tailored_projects'], is_project=True))
+        resume_parts.append(self._format_contact(user_profile.get('contact', {})))
+        resume_parts.append("")
 
-        # 5. Skills
         if tailored_content.get('tailored_skills'):
             resume_parts.extend(self._format_skills(tailored_content['tailored_skills']))
+            resume_parts.append("")
 
-        # Join all parts into a single string with proper line breaks.
+        if tailored_content.get('tailored_experience'):
+            resume_parts.extend(self._format_experience_or_projects("Experience", tailored_content['tailored_experience']))
+
+        if tailored_content.get('tailored_projects'):
+            resume_parts.extend(self._format_experience_or_projects("Projects", tailored_content['tailored_projects'], is_project=True))
+            
+        if tailored_content.get('education'):
+             resume_parts.extend(self._format_education(tailored_content['education']))
+
         return "\n".join(resume_parts).strip()
