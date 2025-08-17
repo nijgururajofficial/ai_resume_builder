@@ -85,8 +85,8 @@ class PdfDocxGenerator:
         for section in doc.sections:
             section.left_margin = Inches(0.5)
             section.right_margin = Inches(0.5)
-            section.top_margin = Inches(0.5)
-            section.bottom_margin = Inches(0.5)
+            section.top_margin = Inches(0.3)
+            section.bottom_margin = Inches(0.3)
 
         doc.styles['Normal'].font.name = self.font_name
         doc.styles['Normal'].font.size = Pt(10.5)
