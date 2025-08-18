@@ -5,9 +5,13 @@ from datetime import datetime
 from langgraph.graph import StateGraph, END
 from IPython.display import Image, display
 
-
 # Import the agents and the Gemini client
-from agents import JobDescriptionAnalysisAgent, ResumeContentSelectionAgent, MarkdownFormattingAgent
+from agents import (
+    JobProspectorAgent, 
+    ResumeAnalysisAgent, 
+    ResumeContentSelectionAgent, 
+    MarkdownFormattingAgent
+)
 from .gemini_client import GeminiClient
 
 class AgentResponse(TypedDict):
@@ -27,8 +31,9 @@ class GraphState(TypedDict):
     Defines the state that flows through the LangGraph.
     Each key represents a piece of data managed by the graph.
     """
+    resume_txt: str
+    job_description_url: str
     user_profile: Dict[str, Any]
-    job_description: str
     job_analysis: Dict[str, Any]
     tailored_content: Dict[str, Any]
     markdown_resume: str
@@ -56,61 +61,81 @@ class LangGraphOrchestrator:
         Constructs the computational graph defining the agent workflow.
         """
         # Instantiate agents, injecting the Gemini client where needed
-        analysis_agent = JobDescriptionAnalysisAgent(self.gemini_client)
+        prospector_agent = JobProspectorAgent(self.gemini_client)
+        resume_agent = ResumeAnalysisAgent(self.gemini_client)
         selection_agent = ResumeContentSelectionAgent(self.gemini_client)
         formatting_agent = MarkdownFormattingAgent() # This agent is deterministic
 
         # Define graph nodes corresponding to each agent's task
-        def analyze_job_description(state: GraphState) -> GraphState:
-            logging.info("Node: Analyzing Job Description")
-            start_time = datetime.now()
+        def initial_parallel_analysis(state: GraphState) -> GraphState:
+            logging.info("Node: Starting parallel analysis of resume and job URL.")
             
+            # --- Task 1: Analyze the Resume ---
+            start_time_resume = datetime.now()
+            resume_input = {"resume_txt": state['resume_txt']}
             try:
-                # Capture input data
-                input_data = {"job_description": state['job_description']}
+                user_profile = resume_agent.run(state['resume_txt'])
+                exec_time_resume = (datetime.now() - start_time_resume).total_seconds() * 1000
                 
-                # Execute agent
-                job_analysis = analysis_agent.run(state['job_description'])
-                
-                # Calculate execution time
-                execution_time = (datetime.now() - start_time).total_seconds() * 1000
-                
-                # Store agent response
-                agent_response = AgentResponse(
+                resume_response = AgentResponse(
                     timestamp=datetime.now().isoformat(),
-                    agent_name="JobDescriptionAnalysisAgent",
-                    input_data=input_data,
-                    output_data=job_analysis,
-                    execution_time_ms=execution_time,
-                    status="success" if job_analysis else "error",
-                    error_message="" if job_analysis else "Failed to generate job analysis",
-                    raw_llm_response=getattr(analysis_agent, 'last_response', ''),
-                    prompt_used=getattr(analysis_agent, 'last_prompt', '')
+                    agent_name="ResumeAnalysisAgent",
+                    input_data=resume_input,
+                    output_data=user_profile,
+                    execution_time_ms=exec_time_resume,
+                    status="success" if user_profile else "error",
+                    error_message="" if user_profile else "Failed to parse resume.",
+                    raw_llm_response=getattr(resume_agent, 'last_response', ''),
+                    prompt_used=getattr(resume_agent, 'last_prompt', '')
                 )
-                
-                # Update state
-                new_state = {**state, "job_analysis": job_analysis}
-                new_state["agent_responses"]["job_analysis"] = agent_response
-                
-                return new_state
-                
             except Exception as e:
-                execution_time = (datetime.now() - start_time).total_seconds() * 1000
-                error_response = AgentResponse(
-                    timestamp=datetime.now().isoformat(),
-                    agent_name="JobDescriptionAnalysisAgent",
-                    input_data=input_data,
-                    output_data={},
-                    execution_time_ms=execution_time,
-                    status="error",
-                    error_message=str(e),
-                    raw_llm_response="",
-                    prompt_used=""
+                # Handle exceptions during resume analysis
+                exec_time_resume = (datetime.now() - start_time_resume).total_seconds() * 1000
+                user_profile = {}
+                resume_response = AgentResponse(
+                    timestamp=datetime.now().isoformat(), agent_name="ResumeAnalysisAgent",
+                    input_data=resume_input, output_data={}, execution_time_ms=exec_time_resume,
+                    status="error", error_message=str(e), raw_llm_response="", prompt_used=""
                 )
-                
-                new_state = {**state, "job_analysis": {}}
-                new_state["agent_responses"]["job_analysis"] = error_response
-                return new_state
+
+            # --- Task 2: Analyze the Job Description URL ---
+            start_time_job = datetime.now()
+            job_input = {"job_description_url": state['job_description_url']}
+            try:
+                job_analysis = prospector_agent.run(state['job_description_url'])
+                exec_time_job = (datetime.now() - start_time_job).total_seconds() * 1000
+
+                job_response = AgentResponse(
+                    timestamp=datetime.now().isoformat(),
+                    agent_name="JobProspectorAgent",
+                    input_data=job_input,
+                    output_data=job_analysis,
+                    execution_time_ms=exec_time_job,
+                    status="success" if job_analysis else "error",
+                    error_message="" if job_analysis else "Failed to prospect job URL.",
+                    raw_llm_response=getattr(prospector_agent, 'last_response', ''),
+                    prompt_used=getattr(prospector_agent, 'last_prompt', '')
+                )
+            except Exception as e:
+                # Handle exceptions during job prospecting
+                exec_time_job = (datetime.now() - start_time_job).total_seconds() * 1000
+                job_analysis = {}
+                job_response = AgentResponse(
+                    timestamp=datetime.now().isoformat(), agent_name="JobProspectorAgent",
+                    input_data=job_input, output_data={}, execution_time_ms=exec_time_job,
+                    status="error", error_message=str(e), raw_llm_response="", prompt_used=""
+                )
+
+            # Update the state with the results from both tasks
+            new_state = {
+                **state, 
+                "user_profile": user_profile,
+                "job_analysis": job_analysis
+            }
+            new_state["agent_responses"]["resume_analysis"] = resume_response
+            new_state["agent_responses"]["job_prospecting"] = job_response
+            
+            return new_state
 
         def select_resume_content(state: GraphState) -> GraphState:
             logging.info("Node: Selecting and Tailoring Resume Content")
@@ -222,13 +247,13 @@ class LangGraphOrchestrator:
 
         # Build the state machine
         graph_builder = StateGraph(GraphState)
-        graph_builder.add_node("analyze_job", analyze_job_description)
+        graph_builder.add_node("initial_analysis", initial_parallel_analysis)
         graph_builder.add_node("select_content", select_resume_content)
         graph_builder.add_node("format_resume", format_markdown_resume)
 
         # Define the workflow edges
-        graph_builder.set_entry_point("analyze_job")
-        graph_builder.add_edge("analyze_job", "select_content")
+        graph_builder.set_entry_point("initial_analysis")
+        graph_builder.add_edge("initial_analysis", "select_content")
         graph_builder.add_edge("select_content", "format_resume")
         graph_builder.add_edge("format_resume", END)
 
@@ -236,39 +261,40 @@ class LangGraphOrchestrator:
         graph = graph_builder.compile()
         
         # Save the Mermaid diagram as a PNG image
-        # try:
-        #     png_data = graph.get_graph().draw_mermaid_png()
-        #     print("Saving workflow diagram...")
-        #     with open("output/workflow_diagram.png", "wb") as f:
-        #         f.write(png_data)
-        #     logging.info("Workflow diagram saved as 'output/workflow_diagram.png'")
-        # except Exception as e:
-        #     logging.warning(f"Could not save workflow diagram: {e}")
+        try:
+            png_data = graph.get_graph().draw_mermaid_png()
+            print("Saving workflow diagram...")
+            with open("output/workflow_diagram.png", "wb") as f:
+                f.write(png_data)
+            logging.info("Workflow diagram saved as 'output/workflow_diagram.png'")
+        except Exception as e:
+            logging.warning(f"Could not save workflow diagram: {e}")
         
         return graph
 
-    def run(self, user_profile: Dict, job_description: str) -> Dict:
+    def run(self, resume_txt: str, job_description_url: str) -> Dict:
         """
         Executes the entire resume generation pipeline.
 
         Args:
-            user_profile: The user's profile data.
-            job_description: The target job description text.
+            resume_txt: The raw text content of the user's resume.
+            job_description_url: The URL of the target job description.
 
         Returns:
             The final state of the graph, containing all intermediate and final results.
         """
         initial_state = {
-            "user_profile": user_profile,
-            "job_description": job_description,
+            "resume_txt": resume_txt,
+            "job_description_url": job_description_url,
+            "user_profile": {},
             "job_analysis": {},
             "tailored_content": {},
             "markdown_resume": "",
             "agent_responses": {},
             "workflow_metadata": {
                 "workflow_start_time": datetime.now().isoformat(),
-                "total_agents": 3,
-                "version": "1.0"
+                "total_agents": 4, # Updated agent count
+                "version": "2.0"   # Version update
             }
         }
         logging.info("Invoking LangGraph workflow...")
