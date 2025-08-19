@@ -30,8 +30,8 @@ def main():
     parser.add_argument(
         "--job-desc-url", # --- CHANGED: Renamed for clarity
         type=str,
-        # required=True,
-        default="https://paypal.eightfold.ai/careers?domain=paypal.com&Codes=W-LINKEDIN&query=R0129930&start=0&location=Chicago%2C+Illinois%2C+US&pid=274908696559&sort_by=timestamp",
+        required=True,
+        # default="https://paypal.eightfold.ai/careers?domain=paypal.com&Codes=W-LINKEDIN&query=R0129930&start=0&location=Chicago%2C+Illinois%2C+US&pid=274908696559&sort_by=timestamp",
         help="URL of the job description."
     )
     parser.add_argument(
