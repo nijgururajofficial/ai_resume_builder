@@ -1,0 +1,13 @@
+airesumevenv/
+.env
+output/
+src/agents/__pycache__/
+src/core/__pycache__/
+src/data/__pycache__/
+src/output/__pycache__/
+src/temp/__pycache__/
+src/tests/__pycache__/
+.DS_Store
+.vscode
+test_main.py
+__pycache__/
