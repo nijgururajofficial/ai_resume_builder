@@ -30,15 +30,7 @@ import {
 
 
 // IMPORTANT: Replace with your Firebase project's configuration
-const firebaseConfig = {
-        apiKey: "AIzaSyDjbhfIqFhLVzqbPf3SximwS7yDSPR0iYQ",
-        authDomain: "fastapi-78c3d.firebaseapp.com",
-        projectId: "fastapi-78c3d",
-        storageBucket: "fastapi-78c3d.firebasestorage.app",
-        messagingSenderId: "168845832927",
-        appId: "1:168845832927:web:03b236cdb4ec136e9a6f6a",
-        measurementId: "G-LGD0WSM8NK"
-};
+const firebaseConfig = {};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
