@@ -1,7 +1,90 @@
-/* Custom styles for Firebase Authentication Demo */
+/* Custom styles for AI Resume Builder */
+
 body {
     font-family: 'Inter', sans-serif;
 }
 
-/* Additional custom styles can be added here as needed */
-/* Currently using Tailwind CSS for most styling */
+/* Loading animation improvements */
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Custom gradient for AI section */
+.ai-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Smooth transitions */
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+/* Custom button hover effects */
+.btn-primary {
+    @apply px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200;
+}
+
+.btn-secondary {
+    @apply px-4 py-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200;
+}
+
+/* File upload area improvements */
+.file-upload-area {
+    border: 2px dashed #d1d5db;
+    transition: border-color 0.3s ease;
+}
+
+.file-upload-area:hover {
+    border-color: #6366f1;
+}
+
+/* Status message animations */
+.status-message {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
